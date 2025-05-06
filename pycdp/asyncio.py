@@ -263,7 +263,8 @@ class CDPConnection(CDPBase, SingleTaskWorker):
                 self._wsurl = self._debugging_url
             else:
                 raise ValueError('bad debugging URL scheme')
-        self._ws = await self._http_client.ws_connect(self._wsurl, compress=15, autoping=True, autoclose=True).__aenter__()
+        self._ws = await self._http_client.ws_connect(self._wsurl, compress=15, autoping=True, autoclose=True,
+                                                      max_msg_size=8 * 1024 * 1024).__aenter__()
 
     def add_session(self, session_id: str, target_id: str) -> CDPSession:
         if session_id is self._sessions:
