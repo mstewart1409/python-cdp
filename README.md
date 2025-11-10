@@ -1,5 +1,5 @@
 # Python CDP
-#### Currently supports CDP [r1368592][2] (Chrome 130).
+#### Currently supports CDP [r1541592][2] (Chrome 142).
 
 Python CDP Generator (shortened to PyCDP) is a library that provides
 Python wrappers for the types, commands, and events specified in the [Chrome

@@ -47,6 +47,11 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: WindowState
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 Commands
 --------
 
@@ -84,6 +89,8 @@ to. For more information, see
 .. autofunction:: get_target_info
 
 .. autofunction:: get_targets
+
+.. autofunction:: open_dev_tools
 
 .. autofunction:: send_message_to_target
 

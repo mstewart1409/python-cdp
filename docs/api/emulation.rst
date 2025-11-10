@@ -17,6 +17,11 @@ yourself. Instead, the API creates objects for you as return
 values from commands, and then you can use those objects as
 arguments to other commands.
 
+.. autoclass:: SafeAreaInsets
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: ScreenOrientation
       :members:
       :undoc-members:
@@ -97,6 +102,21 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: WorkAreaInsets
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: ScreenId
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: ScreenInfo
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: DisabledImageType
       :members:
       :undoc-members:
@@ -114,17 +134,25 @@ commands, and ``z`` is the return type you should pay attention
 to. For more information, see
 :ref:`Getting Started: Commands <getting-started-commands>`.
 
+.. autofunction:: add_screen
+
 .. autofunction:: can_emulate
 
 .. autofunction:: clear_device_metrics_override
 
 .. autofunction:: clear_device_posture_override
 
+.. autofunction:: clear_display_features_override
+
 .. autofunction:: clear_geolocation_override
 
 .. autofunction:: clear_idle_override
 
 .. autofunction:: get_overridden_sensor_information
+
+.. autofunction:: get_screen_infos
+
+.. autofunction:: remove_screen
 
 .. autofunction:: reset_page_scale_factor
 
@@ -134,6 +162,8 @@ to. For more information, see
 
 .. autofunction:: set_cpu_throttling_rate
 
+.. autofunction:: set_data_saver_override
+
 .. autofunction:: set_default_background_color_override
 
 .. autofunction:: set_device_metrics_override
@@ -142,11 +172,15 @@ to. For more information, see
 
 .. autofunction:: set_disabled_image_types
 
+.. autofunction:: set_display_features_override
+
 .. autofunction:: set_document_cookie_disabled
 
 .. autofunction:: set_emit_touch_events_for_mouse
 
 .. autofunction:: set_emulated_media
+
+.. autofunction:: set_emulated_os_text_scale
 
 .. autofunction:: set_emulated_vision_deficiency
 
@@ -164,9 +198,13 @@ to. For more information, see
 
 .. autofunction:: set_page_scale_factor
 
+.. autofunction:: set_pressure_data_override
+
 .. autofunction:: set_pressure_source_override_enabled
 
 .. autofunction:: set_pressure_state_override
+
+.. autofunction:: set_safe_area_insets_override
 
 .. autofunction:: set_script_execution_disabled
 
@@ -175,6 +213,8 @@ to. For more information, see
 .. autofunction:: set_sensor_override_enabled
 
 .. autofunction:: set_sensor_override_readings
+
+.. autofunction:: set_small_viewport_height_difference_override
 
 .. autofunction:: set_timezone_override
 

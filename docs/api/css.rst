@@ -39,7 +39,17 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: CSSAnimationStyle
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: InheritedStyleEntry
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: InheritedAnimatedStyleEntry
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json
@@ -104,6 +114,11 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: ComputedStyleExtraFields
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: CSSStyle
       :members:
       :undoc-members:
@@ -145,6 +160,11 @@ arguments to other commands.
       :exclude-members: from_json, to_json
 
 .. autoclass:: CSSLayer
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: CSSStartingStyle
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json
@@ -194,7 +214,32 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: CSSAtRule
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: CSSPropertyRule
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: CSSFunctionParameter
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: CSSFunctionConditionNode
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: CSSFunctionNode
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: CSSFunctionRule
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json
@@ -233,15 +278,23 @@ to. For more information, see
 
 .. autofunction:: force_pseudo_state
 
+.. autofunction:: force_starting_style
+
+.. autofunction:: get_animated_styles_for_node
+
 .. autofunction:: get_background_colors
 
 .. autofunction:: get_computed_style_for_node
+
+.. autofunction:: get_environment_variables
 
 .. autofunction:: get_inline_styles_for_node
 
 .. autofunction:: get_layers_for_node
 
 .. autofunction:: get_location_for_selector
+
+.. autofunction:: get_longhand_properties
 
 .. autofunction:: get_matched_styles_for_node
 
@@ -250,6 +303,8 @@ to. For more information, see
 .. autofunction:: get_platform_fonts_for_node
 
 .. autofunction:: get_style_sheet_text
+
+.. autofunction:: resolve_values
 
 .. autofunction:: set_container_query_text
 
@@ -283,6 +338,8 @@ to. For more information, see
 
 .. autofunction:: track_computed_style_updates
 
+.. autofunction:: track_computed_style_updates_for_node
+
 Events
 ------
 
@@ -311,6 +368,11 @@ you use the event's attributes.
       :exclude-members: from_json, to_json
 
 .. autoclass:: StyleSheetRemoved
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: ComputedStyleUpdated
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json

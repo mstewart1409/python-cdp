@@ -49,6 +49,16 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: InsightType
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: CookieIssueInsight
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: CookieIssueDetails
       :members:
       :undoc-members:
@@ -139,6 +149,16 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: SRIMessageSignatureError
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: UnencodedDigestError
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: AttributionReportingIssueDetails
       :members:
       :undoc-members:
@@ -155,6 +175,16 @@ arguments to other commands.
       :exclude-members: from_json, to_json
 
 .. autoclass:: SharedDictionaryIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: SRIMessageSignatureIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: UnencodedDigestIssueDetails
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json
@@ -219,6 +249,26 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: PartitioningBlobURLInfo
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: PartitioningBlobURLIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: ElementAccessibilityIssueReason
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: ElementAccessibilityIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: StyleSheetLoadingIssueReason
       :members:
       :undoc-members:
@@ -235,6 +285,16 @@ arguments to other commands.
       :exclude-members: from_json, to_json
 
 .. autoclass:: PropertyRuleIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: UserReidentificationIssueType
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: UserReidentificationIssueDetails
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json
