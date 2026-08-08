@@ -144,11 +144,6 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
-.. autoclass:: AttributionReportingIssueType
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
 .. autoclass:: SharedDictionaryError
       :members:
       :undoc-members:
@@ -165,11 +160,6 @@ arguments to other commands.
       :exclude-members: from_json, to_json
 
 .. autoclass:: ConnectionAllowlistError
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: AttributionReportingIssueDetails
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json
@@ -254,6 +244,16 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: EmailVerificationRequestIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: EmailVerificationRequestIssueReason
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 .. autoclass:: ClientHintIssueDetails
       :members:
       :undoc-members:
@@ -325,6 +325,11 @@ arguments to other commands.
       :exclude-members: from_json, to_json
 
 .. autoclass:: SelectivePermissionsInterventionIssueDetails
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
+.. autoclass:: LazyLoadImageIssueDetails
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json

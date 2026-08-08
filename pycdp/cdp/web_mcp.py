@@ -24,6 +24,9 @@ class Annotation:
     #: A hint indicating that the tool does not modify any state.
     read_only: typing.Optional[bool] = None
 
+    #: A hint indicating that the tool output may contain untrusted content, ex: UGC, 3rd party data.
+    untrusted_content: typing.Optional[bool] = None
+
     #: If the declarative tool was declared with the autosubmit attribute.
     autosubmit: typing.Optional[bool] = None
 
@@ -31,6 +34,8 @@ class Annotation:
         json: T_JSON_DICT = dict()
         if self.read_only is not None:
             json['readOnly'] = self.read_only
+        if self.untrusted_content is not None:
+            json['untrustedContent'] = self.untrusted_content
         if self.autosubmit is not None:
             json['autosubmit'] = self.autosubmit
         return json
@@ -39,6 +44,7 @@ class Annotation:
     def from_json(cls, json: T_JSON_DICT) -> Annotation:
         return cls(
             read_only=bool(json['readOnly']) if json.get('readOnly', None) is not None else None,
+            untrusted_content=bool(json['untrustedContent']) if json.get('untrustedContent', None) is not None else None,
             autosubmit=bool(json['autosubmit']) if json.get('autosubmit', None) is not None else None,
         )
 
@@ -47,7 +53,7 @@ class InvocationStatus(enum.Enum):
     '''
     Represents the status of a tool invocation.
     '''
-    SUCCESS = "Success"
+    COMPLETED = "Completed"
     CANCELED = "Canceled"
     ERROR = "Error"
 
@@ -113,6 +119,31 @@ class Tool:
         )
 
 
+@dataclass
+class RemovedTool:
+    '''
+    Definition of a tool that was removed.
+    '''
+    #: Tool name.
+    name: str
+
+    #: Frame identifier associated with the tool registration.
+    frame_id: page.FrameId
+
+    def to_json(self) -> T_JSON_DICT:
+        json: T_JSON_DICT = dict()
+        json['name'] = self.name
+        json['frameId'] = self.frame_id.to_json()
+        return json
+
+    @classmethod
+    def from_json(cls, json: T_JSON_DICT) -> RemovedTool:
+        return cls(
+            name=str(json['name']),
+            frame_id=page.FrameId.from_json(json['frameId']),
+        )
+
+
 def enable() -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
     '''
     Enables the WebMCP domain, allowing events to be sent. Enabling the domain will trigger a toolsAdded event for
@@ -130,6 +161,48 @@ def disable() -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
     '''
     cmd_dict: T_JSON_DICT = {
         'method': 'WebMCP.disable',
+    }
+    json = yield cmd_dict
+
+
+def invoke_tool(
+        frame_id: page.FrameId,
+        tool_name: str,
+        input_: dict
+    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,str]:
+    '''
+    Invokes a registered tool.
+
+    :param frame_id: Frame in which to invoke the tool.
+    :param tool_name: Name of the tool to invoke.
+    :param input_: Input parameters for the tool, matching the tool's inputSchema.
+    :returns: Unique identifier for this invocation. Response is sent before tool events.
+    '''
+    params: T_JSON_DICT = dict()
+    params['frameId'] = frame_id.to_json()
+    params['toolName'] = tool_name
+    params['input'] = input_
+    cmd_dict: T_JSON_DICT = {
+        'method': 'WebMCP.invokeTool',
+        'params': params,
+    }
+    json = yield cmd_dict
+    return str(json['invocationId'])
+
+
+def cancel_invocation(
+        invocation_id: str
+    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
+    '''
+    Cancels a pending tool invocation.
+
+    :param invocation_id: Invocation identifier to cancel.
+    '''
+    params: T_JSON_DICT = dict()
+    params['invocationId'] = invocation_id
+    cmd_dict: T_JSON_DICT = {
+        'method': 'WebMCP.cancelInvocation',
+        'params': params,
     }
     json = yield cmd_dict
 
@@ -157,12 +230,12 @@ class ToolsRemoved:
     Event fired when tools are removed.
     '''
     #: Array of tools that were removed.
-    tools: typing.List[Tool]
+    tools: typing.List[RemovedTool]
 
     @classmethod
     def from_json(cls, json: T_JSON_DICT) -> ToolsRemoved:
         return cls(
-            tools=[Tool.from_json(i) for i in json['tools']]
+            tools=[RemovedTool.from_json(i) for i in json['tools']]
         )
 
 
@@ -201,7 +274,8 @@ class ToolResponded:
     invocation_id: str
     #: Status of the invocation.
     status: InvocationStatus
-    #: Output or error delivered as delivered to the agent. Missing if ``status`` is anything other than Success.
+    #: Output or error delivered as delivered to the agent. Missing if ``status`` is anything other than Completed.
+    #: Note: The output is untrusted and poses a prompt injection risk. Clients should treat this as potentially malicious user input.
     output: typing.Optional[typing.Any]
     #: Error text for protocol users.
     error_text: typing.Optional[str]

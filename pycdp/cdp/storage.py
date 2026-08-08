@@ -42,7 +42,6 @@ class StorageType(enum.Enum):
     WEBSQL = "websql"
     SERVICE_WORKERS = "service_workers"
     CACHE_STORAGE = "cache_storage"
-    INTEREST_GROUPS = "interest_groups"
     SHARED_STORAGE = "shared_storage"
     STORAGE_BUCKETS = "storage_buckets"
     ALL_ = "all"
@@ -105,85 +104,12 @@ class TrustTokens:
         )
 
 
-class InterestGroupAuctionId(str):
-    '''
-    Protected audience interest group auction identifier.
-    '''
-    def to_json(self) -> str:
-        return self
-
-    @classmethod
-    def from_json(cls, json: str) -> InterestGroupAuctionId:
-        return cls(json)
-
-    def __repr__(self):
-        return 'InterestGroupAuctionId({})'.format(super().__repr__())
-
-
-class InterestGroupAccessType(enum.Enum):
-    '''
-    Enum of interest group access types.
-    '''
-    JOIN = "join"
-    LEAVE = "leave"
-    UPDATE = "update"
-    LOADED = "loaded"
-    BID = "bid"
-    WIN = "win"
-    ADDITIONAL_BID = "additionalBid"
-    ADDITIONAL_BID_WIN = "additionalBidWin"
-    TOP_LEVEL_BID = "topLevelBid"
-    TOP_LEVEL_ADDITIONAL_BID = "topLevelAdditionalBid"
-    CLEAR = "clear"
-
-    def to_json(self) -> str:
-        return self.value
-
-    @classmethod
-    def from_json(cls, json: str) -> InterestGroupAccessType:
-        return cls(json)
-
-
-class InterestGroupAuctionEventType(enum.Enum):
-    '''
-    Enum of auction events.
-    '''
-    STARTED = "started"
-    CONFIG_RESOLVED = "configResolved"
-
-    def to_json(self) -> str:
-        return self.value
-
-    @classmethod
-    def from_json(cls, json: str) -> InterestGroupAuctionEventType:
-        return cls(json)
-
-
-class InterestGroupAuctionFetchType(enum.Enum):
-    '''
-    Enum of network fetches auctions can do.
-    '''
-    BIDDER_JS = "bidderJs"
-    BIDDER_WASM = "bidderWasm"
-    SELLER_JS = "sellerJs"
-    BIDDER_TRUSTED_SIGNALS = "bidderTrustedSignals"
-    SELLER_TRUSTED_SIGNALS = "sellerTrustedSignals"
-
-    def to_json(self) -> str:
-        return self.value
-
-    @classmethod
-    def from_json(cls, json: str) -> InterestGroupAuctionFetchType:
-        return cls(json)
-
-
 class SharedStorageAccessScope(enum.Enum):
     '''
     Enum of shared storage access scopes.
     '''
     WINDOW = "window"
     SHARED_STORAGE_WORKLET = "sharedStorageWorklet"
-    PROTECTED_AUDIENCE_WORKLET = "protectedAudienceWorklet"
     HEADER = "header"
 
     def to_json(self) -> str:
@@ -988,69 +914,6 @@ def clear_trust_tokens(
     return bool(json['didDeleteTokens'])
 
 
-def get_interest_group_details(
-        owner_origin: str,
-        name: str
-    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,dict]:
-    '''
-    Gets details for a named interest group.
-
-    **EXPERIMENTAL**
-
-    :param owner_origin:
-    :param name:
-    :returns: This largely corresponds to: https://wicg.github.io/turtledove/#dictdef-generatebidinterestgroup but has absolute expirationTime instead of relative lifetimeMs and also adds joiningOrigin.
-    '''
-    params: T_JSON_DICT = dict()
-    params['ownerOrigin'] = owner_origin
-    params['name'] = name
-    cmd_dict: T_JSON_DICT = {
-        'method': 'Storage.getInterestGroupDetails',
-        'params': params,
-    }
-    json = yield cmd_dict
-    return dict(json['details'])
-
-
-def set_interest_group_tracking(
-        enable: bool
-    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
-    '''
-    Enables/Disables issuing of interestGroupAccessed events.
-
-    **EXPERIMENTAL**
-
-    :param enable:
-    '''
-    params: T_JSON_DICT = dict()
-    params['enable'] = enable
-    cmd_dict: T_JSON_DICT = {
-        'method': 'Storage.setInterestGroupTracking',
-        'params': params,
-    }
-    json = yield cmd_dict
-
-
-def set_interest_group_auction_tracking(
-        enable: bool
-    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
-    '''
-    Enables/Disables issuing of interestGroupAuctionEventOccurred and
-    interestGroupAuctionNetworkRequestCreated.
-
-    **EXPERIMENTAL**
-
-    :param enable:
-    '''
-    params: T_JSON_DICT = dict()
-    params['enable'] = enable
-    cmd_dict: T_JSON_DICT = {
-        'method': 'Storage.setInterestGroupAuctionTracking',
-        'params': params,
-    }
-    json = yield cmd_dict
-
-
 def get_shared_storage_metadata(
         owner_origin: str
     ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,SharedStorageMetadata]:
@@ -1273,27 +1136,6 @@ def get_related_website_sets() -> typing.Generator[T_JSON_DICT,T_JSON_DICT,typin
     return [RelatedWebsiteSet.from_json(i) for i in json['sets']]
 
 
-def set_protected_audience_k_anonymity(
-        owner: str,
-        name: str,
-        hashes: typing.List[str]
-    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
-    '''
-    :param owner:
-    :param name:
-    :param hashes:
-    '''
-    params: T_JSON_DICT = dict()
-    params['owner'] = owner
-    params['name'] = name
-    params['hashes'] = [i for i in hashes]
-    cmd_dict: T_JSON_DICT = {
-        'method': 'Storage.setProtectedAudienceKAnonymity',
-        'params': params,
-    }
-    json = yield cmd_dict
-
-
 @event_class('Storage.cacheStorageContentUpdated')
 @dataclass
 class CacheStorageContentUpdated:
@@ -1388,91 +1230,6 @@ class IndexedDBListUpdated:
             origin=str(json['origin']),
             storage_key=str(json['storageKey']),
             bucket_id=str(json['bucketId'])
-        )
-
-
-@event_class('Storage.interestGroupAccessed')
-@dataclass
-class InterestGroupAccessed:
-    '''
-    One of the interest groups was accessed. Note that these events are global
-    to all targets sharing an interest group store.
-    '''
-    access_time: network.TimeSinceEpoch
-    type_: InterestGroupAccessType
-    owner_origin: str
-    name: str
-    #: For topLevelBid/topLevelAdditionalBid, and when appropriate,
-    #: win and additionalBidWin
-    component_seller_origin: typing.Optional[str]
-    #: For bid or somethingBid event, if done locally and not on a server.
-    bid: typing.Optional[float]
-    bid_currency: typing.Optional[str]
-    #: For non-global events --- links to interestGroupAuctionEvent
-    unique_auction_id: typing.Optional[InterestGroupAuctionId]
-
-    @classmethod
-    def from_json(cls, json: T_JSON_DICT) -> InterestGroupAccessed:
-        return cls(
-            access_time=network.TimeSinceEpoch.from_json(json['accessTime']),
-            type_=InterestGroupAccessType.from_json(json['type']),
-            owner_origin=str(json['ownerOrigin']),
-            name=str(json['name']),
-            component_seller_origin=str(json['componentSellerOrigin']) if json.get('componentSellerOrigin', None) is not None else None,
-            bid=float(json['bid']) if json.get('bid', None) is not None else None,
-            bid_currency=str(json['bidCurrency']) if json.get('bidCurrency', None) is not None else None,
-            unique_auction_id=InterestGroupAuctionId.from_json(json['uniqueAuctionId']) if json.get('uniqueAuctionId', None) is not None else None
-        )
-
-
-@event_class('Storage.interestGroupAuctionEventOccurred')
-@dataclass
-class InterestGroupAuctionEventOccurred:
-    '''
-    An auction involving interest groups is taking place. These events are
-    target-specific.
-    '''
-    event_time: network.TimeSinceEpoch
-    type_: InterestGroupAuctionEventType
-    unique_auction_id: InterestGroupAuctionId
-    #: Set for child auctions.
-    parent_auction_id: typing.Optional[InterestGroupAuctionId]
-    #: Set for started and configResolved
-    auction_config: typing.Optional[dict]
-
-    @classmethod
-    def from_json(cls, json: T_JSON_DICT) -> InterestGroupAuctionEventOccurred:
-        return cls(
-            event_time=network.TimeSinceEpoch.from_json(json['eventTime']),
-            type_=InterestGroupAuctionEventType.from_json(json['type']),
-            unique_auction_id=InterestGroupAuctionId.from_json(json['uniqueAuctionId']),
-            parent_auction_id=InterestGroupAuctionId.from_json(json['parentAuctionId']) if json.get('parentAuctionId', None) is not None else None,
-            auction_config=dict(json['auctionConfig']) if json.get('auctionConfig', None) is not None else None
-        )
-
-
-@event_class('Storage.interestGroupAuctionNetworkRequestCreated')
-@dataclass
-class InterestGroupAuctionNetworkRequestCreated:
-    '''
-    Specifies which auctions a particular network fetch may be related to, and
-    in what role. Note that it is not ordered with respect to
-    Network.requestWillBeSent (but will happen before loadingFinished
-    loadingFailed).
-    '''
-    type_: InterestGroupAuctionFetchType
-    request_id: network.RequestId
-    #: This is the set of the auctions using the worklet that issued this
-    #: request.  In the case of trusted signals, it's possible that only some of
-    #: them actually care about the keys being queried.
-    auctions: typing.List[InterestGroupAuctionId]
-
-    @classmethod
-    def from_json(cls, json: T_JSON_DICT) -> InterestGroupAuctionNetworkRequestCreated:
-        return cls(
-            type_=InterestGroupAuctionFetchType.from_json(json['type']),
-            request_id=network.RequestId.from_json(json['requestId']),
-            auctions=[InterestGroupAuctionId.from_json(i) for i in json['auctions']]
         )
 
 

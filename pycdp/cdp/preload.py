@@ -331,6 +331,7 @@ class PrerenderFinalStatus(enum.Enum):
     BROWSING_DATA_REMOVED = "BrowsingDataRemoved"
     PRERENDER_HOST_REUSED = "PrerenderHostReused"
     FORM_SUBMIT_WHEN_PRERENDERING = "FormSubmitWhenPrerendering"
+    CROSS_DOCUMENT_RESTART = "CrossDocumentRestart"
 
     def to_json(self) -> str:
         return self.value
@@ -378,6 +379,7 @@ class PrefetchStatus(enum.Enum):
     PREFETCH_INELIGIBLE_RETRY_AFTER = "PrefetchIneligibleRetryAfter"
     PREFETCH_IS_PRIVACY_DECOY = "PrefetchIsPrivacyDecoy"
     PREFETCH_IS_STALE = "PrefetchIsStale"
+    PREFETCH_NOT_ELIGIBLE_BLOCKED_BY_CONNECTION_ALLOWLIST = "PrefetchNotEligibleBlockedByConnectionAllowlist"
     PREFETCH_NOT_ELIGIBLE_BROWSER_CONTEXT_OFF_THE_RECORD = "PrefetchNotEligibleBrowserContextOffTheRecord"
     PREFETCH_NOT_ELIGIBLE_DATA_SAVER_ENABLED = "PrefetchNotEligibleDataSaverEnabled"
     PREFETCH_NOT_ELIGIBLE_EXISTING_PROXY = "PrefetchNotEligibleExistingProxy"
@@ -399,6 +401,7 @@ class PrefetchStatus(enum.Enum):
     PREFETCH_RESPONSE_USED = "PrefetchResponseUsed"
     PREFETCH_SUCCESSFUL_BUT_NOT_USED = "PrefetchSuccessfulButNotUsed"
     PREFETCH_NOT_USED_PROBE_FAILED = "PrefetchNotUsedProbeFailed"
+    PREFETCH_CANCELLED_ON_USER_NAVIGATION = "PrefetchCancelledOnUserNavigation"
 
     def to_json(self) -> str:
         return self.value

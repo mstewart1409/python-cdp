@@ -620,6 +620,90 @@ class HingeConfig:
         )
 
 
+class DisplayCutoutShape(enum.Enum):
+    '''
+    Supported display cutout shapes.
+    '''
+    PILL = "pill"
+    NOTCH = "notch"
+    CIRCLE = "circle"
+    RECTANGLE = "rectangle"
+
+    def to_json(self) -> str:
+        return self.value
+
+    @classmethod
+    def from_json(cls, json: str) -> DisplayCutoutShape:
+        return cls(json)
+
+
+@dataclass
+class DisplayCutoutConfig:
+    '''
+    Configuration for a display cutout.
+    '''
+    #: A rectangle representing the cutout bounds.
+    rect: dom.Rect
+
+    #: Shape used to draw the cutout.
+    shape: DisplayCutoutShape
+
+    #: Border radius for rounded cutout shapes.
+    border_radius: typing.Optional[int] = None
+
+    #: Upper shoulder radius for notch cutout shapes.
+    upper_radius: typing.Optional[int] = None
+
+    #: Lower transition radius for notch cutout shapes.
+    lower_radius: typing.Optional[int] = None
+
+    #: Center x coordinate for circle cutout shapes.
+    cx: typing.Optional[int] = None
+
+    #: Center y coordinate for circle cutout shapes.
+    cy: typing.Optional[int] = None
+
+    #: Radius for circle cutout shapes.
+    radius: typing.Optional[int] = None
+
+    #: The cutout fill color (default: black).
+    content_color: typing.Optional[dom.RGBA] = None
+
+    def to_json(self) -> T_JSON_DICT:
+        json: T_JSON_DICT = dict()
+        json['rect'] = self.rect.to_json()
+        json['shape'] = self.shape.to_json()
+        if self.border_radius is not None:
+            json['borderRadius'] = self.border_radius
+        if self.upper_radius is not None:
+            json['upperRadius'] = self.upper_radius
+        if self.lower_radius is not None:
+            json['lowerRadius'] = self.lower_radius
+        if self.cx is not None:
+            json['cx'] = self.cx
+        if self.cy is not None:
+            json['cy'] = self.cy
+        if self.radius is not None:
+            json['radius'] = self.radius
+        if self.content_color is not None:
+            json['contentColor'] = self.content_color.to_json()
+        return json
+
+    @classmethod
+    def from_json(cls, json: T_JSON_DICT) -> DisplayCutoutConfig:
+        return cls(
+            rect=dom.Rect.from_json(json['rect']),
+            shape=DisplayCutoutShape.from_json(json['shape']),
+            border_radius=int(json['borderRadius']) if json.get('borderRadius', None) is not None else None,
+            upper_radius=int(json['upperRadius']) if json.get('upperRadius', None) is not None else None,
+            lower_radius=int(json['lowerRadius']) if json.get('lowerRadius', None) is not None else None,
+            cx=int(json['cx']) if json.get('cx', None) is not None else None,
+            cy=int(json['cy']) if json.get('cy', None) is not None else None,
+            radius=int(json['radius']) if json.get('radius', None) is not None else None,
+            content_color=dom.RGBA.from_json(json['contentColor']) if json.get('contentColor', None) is not None else None,
+        )
+
+
 @dataclass
 class WindowControlsOverlayConfig:
     '''
@@ -1333,6 +1417,24 @@ def set_show_hinge(
         params['hingeConfig'] = hinge_config.to_json()
     cmd_dict: T_JSON_DICT = {
         'method': 'Overlay.setShowHinge',
+        'params': params,
+    }
+    json = yield cmd_dict
+
+
+def set_show_display_cutout(
+        display_cutout_config: typing.Optional[DisplayCutoutConfig] = None
+    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
+    '''
+    Add a display cutout overlay.
+
+    :param display_cutout_config: *(Optional)* display cutout data, null means hide display cutout
+    '''
+    params: T_JSON_DICT = dict()
+    if display_cutout_config is not None:
+        params['displayCutoutConfig'] = display_cutout_config.to_json()
+    cmd_dict: T_JSON_DICT = {
+        'method': 'Overlay.setShowDisplayCutout',
         'params': params,
     }
     json = yield cmd_dict

@@ -442,7 +442,8 @@ def evaluate_on_call_frame(
         return_by_value: typing.Optional[bool] = None,
         generate_preview: typing.Optional[bool] = None,
         throw_on_side_effect: typing.Optional[bool] = None,
-        timeout: typing.Optional[runtime.TimeDelta] = None
+        timeout: typing.Optional[runtime.TimeDelta] = None,
+        scope_number: typing.Optional[int] = None
     ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,typing.Tuple[runtime.RemoteObject, typing.Optional[runtime.ExceptionDetails]]]:
     '''
     Evaluates expression on a given call frame.
@@ -456,6 +457,7 @@ def evaluate_on_call_frame(
     :param generate_preview: **(EXPERIMENTAL)** *(Optional)* Whether preview should be generated for the result.
     :param throw_on_side_effect: *(Optional)* Whether to throw an exception if side effect cannot be ruled out during evaluation.
     :param timeout: **(EXPERIMENTAL)** *(Optional)* Terminate execution after timing out (number of milliseconds).
+    :param scope_number: **(EXPERIMENTAL)** *(Optional)* Specifies the scope number to evaluate the expression in (default: 0, innermost scope).
     :returns: A tuple with the following items:
 
         0. **result** - Object wrapper for the evaluation result.
@@ -478,6 +480,8 @@ def evaluate_on_call_frame(
         params['throwOnSideEffect'] = throw_on_side_effect
     if timeout is not None:
         params['timeout'] = timeout.to_json()
+    if scope_number is not None:
+        params['scopeNumber'] = scope_number
     cmd_dict: T_JSON_DICT = {
         'method': 'Debugger.evaluateOnCallFrame',
         'params': params,

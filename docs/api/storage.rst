@@ -37,26 +37,6 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
-.. autoclass:: InterestGroupAuctionId
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: InterestGroupAccessType
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: InterestGroupAuctionEventType
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: InterestGroupAuctionFetchType
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
 .. autoclass:: SharedStorageAccessScope
       :members:
       :undoc-members:
@@ -145,8 +125,6 @@ to. For more information, see
 
 .. autofunction:: get_cookies
 
-.. autofunction:: get_interest_group_details
-
 .. autofunction:: get_related_website_sets
 
 .. autofunction:: get_shared_storage_entries
@@ -168,12 +146,6 @@ to. For more information, see
 .. autofunction:: run_bounce_tracking_mitigations
 
 .. autofunction:: set_cookies
-
-.. autofunction:: set_interest_group_auction_tracking
-
-.. autofunction:: set_interest_group_tracking
-
-.. autofunction:: set_protected_audience_k_anonymity
 
 .. autofunction:: set_shared_storage_entry
 
@@ -220,21 +192,6 @@ you use the event's attributes.
       :exclude-members: from_json, to_json
 
 .. autoclass:: IndexedDBListUpdated
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: InterestGroupAccessed
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: InterestGroupAuctionEventOccurred
-      :members:
-      :undoc-members:
-      :exclude-members: from_json, to_json
-
-.. autoclass:: InterestGroupAuctionNetworkRequestCreated
       :members:
       :undoc-members:
       :exclude-members: from_json, to_json

@@ -103,7 +103,7 @@ class PseudoType(enum.Enum):
     AFTER = "after"
     EXPAND_ICON = "expand-icon"
     PICKER_ICON = "picker-icon"
-    INTEREST_HINT = "interest-hint"
+    INTEREST_BUTTON = "interest-button"
     MARKER = "marker"
     BACKDROP = "backdrop"
     COLUMN = "column"
@@ -135,8 +135,11 @@ class PseudoType(enum.Enum):
     FILE_SELECTOR_BUTTON = "file-selector-button"
     DETAILS_CONTENT = "details-content"
     PICKER = "picker"
+    SELECT_LISTBOX = "select-listbox"
     PERMISSION_ICON = "permission-icon"
     OVERSCROLL_AREA_PARENT = "overscroll-area-parent"
+    OVERSCROLL_BACKDROP = "overscroll-backdrop"
+    SKELETON = "skeleton"
 
     def to_json(self) -> str:
         return self.value
@@ -1855,7 +1858,8 @@ def get_anchor_element(
 
 def force_show_popover(
         node_id: NodeId,
-        enable: bool
+        enable: bool,
+        invoker_node_id: typing.Optional[BackendNodeId] = None
     ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,typing.List[NodeId]]:
     '''
     When enabling, this API force-opens the popover identified by nodeId
@@ -1865,17 +1869,43 @@ def force_show_popover(
 
     :param node_id: Id of the popover HTMLElement
     :param enable: If true, opens the popover and keeps it open. If false, closes the popover if it was previously force-opened.
+    :param invoker_node_id: *(Optional)* Optional ID of the element invoking this popover, used to establish the implicit anchor. If not provided, it will fall back to the first invoker in the document, preferring elements with a popovertarget attribute over those with a commandfor attribute. Note that if there are multiple invokers, this is just an estimate.
     :returns: List of popovers that were closed in order to respect popover stacking order.
     '''
     params: T_JSON_DICT = dict()
     params['nodeId'] = node_id.to_json()
     params['enable'] = enable
+    if invoker_node_id is not None:
+        params['invokerNodeId'] = invoker_node_id.to_json()
     cmd_dict: T_JSON_DICT = {
         'method': 'DOM.forceShowPopover',
         'params': params,
     }
     json = yield cmd_dict
     return [NodeId.from_json(i) for i in json['nodeIds']]
+
+
+def force_show_interest(
+        node_id: NodeId,
+        enable: bool
+    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
+    '''
+    When enabling, this API forces an element to gain interest in its target,
+    keeping interest active until disabled.
+
+    **EXPERIMENTAL**
+
+    :param node_id: Id of the interest invoker HTMLElement.
+    :param enable: If true, opens and holds interest. If false, releases forced interest.
+    '''
+    params: T_JSON_DICT = dict()
+    params['nodeId'] = node_id.to_json()
+    params['enable'] = enable
+    cmd_dict: T_JSON_DICT = {
+        'method': 'DOM.forceShowInterest',
+        'params': params,
+    }
+    json = yield cmd_dict
 
 
 @event_class('DOM.attributeModified')

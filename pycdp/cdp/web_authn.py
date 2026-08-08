@@ -109,6 +109,12 @@ class VirtualAuthenticatorOptions:
     #: Defaults to false.
     has_hmac_secret_mc: typing.Optional[bool] = None
 
+    #: If set to true, the authenticator will support the cmtgKey (Credential
+    #: Manager Trust Group Key) extension.
+    #: https://github.com/w3c/webauthn/pull/2377
+    #: Defaults to false.
+    has_cmtg_key: typing.Optional[bool] = None
+
     #: If set to true, tests of user presence will succeed immediately.
     #: Otherwise, they will not be resolved. Defaults to true.
     automatic_presence_simulation: typing.Optional[bool] = None
@@ -149,6 +155,8 @@ class VirtualAuthenticatorOptions:
             json['hasHmacSecret'] = self.has_hmac_secret
         if self.has_hmac_secret_mc is not None:
             json['hasHmacSecretMc'] = self.has_hmac_secret_mc
+        if self.has_cmtg_key is not None:
+            json['hasCmtgKey'] = self.has_cmtg_key
         if self.automatic_presence_simulation is not None:
             json['automaticPresenceSimulation'] = self.automatic_presence_simulation
         if self.is_user_verified is not None:
@@ -173,6 +181,7 @@ class VirtualAuthenticatorOptions:
             has_prf=bool(json['hasPrf']) if json.get('hasPrf', None) is not None else None,
             has_hmac_secret=bool(json['hasHmacSecret']) if json.get('hasHmacSecret', None) is not None else None,
             has_hmac_secret_mc=bool(json['hasHmacSecretMc']) if json.get('hasHmacSecretMc', None) is not None else None,
+            has_cmtg_key=bool(json['hasCmtgKey']) if json.get('hasCmtgKey', None) is not None else None,
             automatic_presence_simulation=bool(json['automaticPresenceSimulation']) if json.get('automaticPresenceSimulation', None) is not None else None,
             is_user_verified=bool(json['isUserVerified']) if json.get('isUserVerified', None) is not None else None,
             default_backup_eligibility=bool(json['defaultBackupEligibility']) if json.get('defaultBackupEligibility', None) is not None else None,
@@ -189,8 +198,9 @@ class Credential:
     #: The ECDSA P-256 private key in PKCS#8 format. (Encoded as a base64 string when passed over JSON)
     private_key: str
 
-    #: Signature counter. This is incremented by one for each successful
-    #: assertion.
+    #: Signature counter. Must be equal to or greater than -1.
+    #: If -1, the credential won't have an associated signature counter, and
+    #: every assertion operation will report a value of 0.
     #: See https://w3c.github.io/webauthn/#signature-counter
     sign_count: int
 
@@ -225,6 +235,15 @@ class Credential:
     #: https://w3c.github.io/webauthn/#dom-publickeycredentialuserentity-displayname
     user_display_name: typing.Optional[str] = None
 
+    #: The CMTG keys associated with the credential.
+    cmtg_keys: typing.Optional[typing.List[str]] = None
+
+    #: The 0-based index of the active key in cmtgKeys.
+    active_cmtg_key_index: typing.Optional[int] = None
+
+    #: If true, the authenticator will generate a new CMTG key on the next operation.
+    generate_cmtg_key_on_next_operation: typing.Optional[bool] = None
+
     def to_json(self) -> T_JSON_DICT:
         json: T_JSON_DICT = dict()
         json['credentialId'] = self.credential_id
@@ -245,6 +264,12 @@ class Credential:
             json['userName'] = self.user_name
         if self.user_display_name is not None:
             json['userDisplayName'] = self.user_display_name
+        if self.cmtg_keys is not None:
+            json['cmtgKeys'] = [i for i in self.cmtg_keys]
+        if self.active_cmtg_key_index is not None:
+            json['activeCmtgKeyIndex'] = self.active_cmtg_key_index
+        if self.generate_cmtg_key_on_next_operation is not None:
+            json['generateCmtgKeyOnNextOperation'] = self.generate_cmtg_key_on_next_operation
         return json
 
     @classmethod
@@ -261,6 +286,9 @@ class Credential:
             backup_state=bool(json['backupState']) if json.get('backupState', None) is not None else None,
             user_name=str(json['userName']) if json.get('userName', None) is not None else None,
             user_display_name=str(json['userDisplayName']) if json.get('userDisplayName', None) is not None else None,
+            cmtg_keys=[str(i) for i in json['cmtgKeys']] if json.get('cmtgKeys', None) is not None else None,
+            active_cmtg_key_index=int(json['activeCmtgKeyIndex']) if json.get('activeCmtgKeyIndex', None) is not None else None,
+            generate_cmtg_key_on_next_operation=bool(json['generateCmtgKeyOnNextOperation']) if json.get('generateCmtgKeyOnNextOperation', None) is not None else None,
         )
 
 
@@ -503,7 +531,10 @@ def set_credential_properties(
         authenticator_id: AuthenticatorId,
         credential_id: str,
         backup_eligibility: typing.Optional[bool] = None,
-        backup_state: typing.Optional[bool] = None
+        backup_state: typing.Optional[bool] = None,
+        active_cmtg_key_index: typing.Optional[int] = None,
+        generate_cmtg_key_on_next_operation: typing.Optional[bool] = None,
+        sign_count: typing.Optional[int] = None
     ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
     '''
     Allows setting credential properties.
@@ -513,6 +544,9 @@ def set_credential_properties(
     :param credential_id:
     :param backup_eligibility: *(Optional)*
     :param backup_state: *(Optional)*
+    :param active_cmtg_key_index: *(Optional)*
+    :param generate_cmtg_key_on_next_operation: *(Optional)*
+    :param sign_count: *(Optional)* Must be equal to or greater than -1. If -1, the signature counter is removed from the credential, and every assertion operation will report a value of 0. See https://w3c.github.io/webauthn/#signature-counter
     '''
     params: T_JSON_DICT = dict()
     params['authenticatorId'] = authenticator_id.to_json()
@@ -521,6 +555,12 @@ def set_credential_properties(
         params['backupEligibility'] = backup_eligibility
     if backup_state is not None:
         params['backupState'] = backup_state
+    if active_cmtg_key_index is not None:
+        params['activeCmtgKeyIndex'] = active_cmtg_key_index
+    if generate_cmtg_key_on_next_operation is not None:
+        params['generateCmtgKeyOnNextOperation'] = generate_cmtg_key_on_next_operation
+    if sign_count is not None:
+        params['signCount'] = sign_count
     cmd_dict: T_JSON_DICT = {
         'method': 'WebAuthn.setCredentialProperties',
         'params': params,

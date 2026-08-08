@@ -298,18 +298,6 @@ class Histogram:
         )
 
 
-class PrivacySandboxAPI(enum.Enum):
-    BIDDING_AND_AUCTION_SERVICES = "BiddingAndAuctionServices"
-    TRUSTED_KEY_VALUE = "TrustedKeyValue"
-
-    def to_json(self) -> str:
-        return self.value
-
-    @classmethod
-    def from_json(cls, json: str) -> PrivacySandboxAPI:
-        return cls(json)
-
-
 def set_permission(
         permission: PermissionDescriptor,
         setting: PermissionSetting,
@@ -727,36 +715,6 @@ def add_privacy_sandbox_enrollment_override(
     params['url'] = url
     cmd_dict: T_JSON_DICT = {
         'method': 'Browser.addPrivacySandboxEnrollmentOverride',
-        'params': params,
-    }
-    json = yield cmd_dict
-
-
-def add_privacy_sandbox_coordinator_key_config(
-        api: PrivacySandboxAPI,
-        coordinator_origin: str,
-        key_config: str,
-        browser_context_id: typing.Optional[BrowserContextID] = None
-    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
-    '''
-    Configures encryption keys used with a given privacy sandbox API to talk
-    to a trusted coordinator.  Since this is intended for test automation only,
-    coordinatorOrigin must be a .test domain. No existing coordinator
-    configuration for the origin may exist.
-
-    :param api:
-    :param coordinator_origin:
-    :param key_config:
-    :param browser_context_id: *(Optional)* BrowserContext to perform the action in. When omitted, default browser context is used.
-    '''
-    params: T_JSON_DICT = dict()
-    params['api'] = api.to_json()
-    params['coordinatorOrigin'] = coordinator_origin
-    params['keyConfig'] = key_config
-    if browser_context_id is not None:
-        params['browserContextId'] = browser_context_id.to_json()
-    cmd_dict: T_JSON_DICT = {
-        'method': 'Browser.addPrivacySandboxCoordinatorKeyConfig',
         'params': params,
     }
     json = yield cmd_dict

@@ -145,7 +145,6 @@ class PermissionsPolicyFeature(enum.Enum):
     ALL_SCREENS_CAPTURE = "all-screens-capture"
     AMBIENT_LIGHT_SENSOR = "ambient-light-sensor"
     ARIA_NOTIFY = "aria-notify"
-    ATTRIBUTION_REPORTING = "attribution-reporting"
     AUTOFILL = "autofill"
     AUTOPLAY = "autoplay"
     BLUETOOTH = "bluetooth"
@@ -188,7 +187,6 @@ class PermissionsPolicyFeature(enum.Enum):
     DIGITAL_CREDENTIALS_GET = "digital-credentials-get"
     DIRECT_SOCKETS = "direct-sockets"
     DIRECT_SOCKETS_MULTICAST = "direct-sockets-multicast"
-    DIRECT_SOCKETS_PRIVATE = "direct-sockets-private"
     DISPLAY_CAPTURE = "display-capture"
     DOCUMENT_DOMAIN = "document-domain"
     ENCRYPTED_MEDIA = "encrypted-media"
@@ -239,12 +237,14 @@ class PermissionsPolicyFeature(enum.Enum):
     SUB_APPS = "sub-apps"
     SUMMARIZER = "summarizer"
     SYNC_XHR = "sync-xhr"
+    TOOLS = "tools"
     TRANSLATOR = "translator"
     UNLOAD = "unload"
     USB = "usb"
     USB_UNRESTRICTED = "usb-unrestricted"
     VERTICAL_SCROLL = "vertical-scroll"
     WEB_APP_INSTALLATION = "web-app-installation"
+    WEBNN = "webnn"
     WEB_PRINTING = "web-printing"
     WEB_SHARE = "web-share"
     WINDOW_MANAGEMENT = "window-management"
@@ -1300,8 +1300,6 @@ class FileHandler:
     #: other enums below.
     launch_type: str
 
-    icons: typing.Optional[typing.List[ImageResource]] = None
-
     #: Mimic a map, name is the key, accepts is the value.
     accepts: typing.Optional[typing.List[FileFilter]] = None
 
@@ -1310,8 +1308,6 @@ class FileHandler:
         json['action'] = self.action
         json['name'] = self.name
         json['launchType'] = self.launch_type
-        if self.icons is not None:
-            json['icons'] = [i.to_json() for i in self.icons]
         if self.accepts is not None:
             json['accepts'] = [i.to_json() for i in self.accepts]
         return json
@@ -1322,7 +1318,6 @@ class FileHandler:
             action=str(json['action']),
             name=str(json['name']),
             launch_type=str(json['launchType']),
-            icons=[ImageResource.from_json(i) for i in json['icons']] if json.get('icons', None) is not None else None,
             accepts=[FileFilter.from_json(i) for i in json['accepts']] if json.get('accepts', None) is not None else None,
         )
 
@@ -1825,6 +1820,7 @@ class BackForwardCacheNotRestoredReason(enum.Enum):
     EMBEDDER_EXTENSION_MESSAGING = "EmbedderExtensionMessaging"
     EMBEDDER_EXTENSION_MESSAGING_FOR_OPEN_PORT = "EmbedderExtensionMessagingForOpenPort"
     EMBEDDER_EXTENSION_SENT_MESSAGE_TO_CACHED_FRAME = "EmbedderExtensionSentMessageToCachedFrame"
+    EMBEDDER_EXTENSION_FRAME = "EmbedderExtensionFrame"
     REQUESTED_BY_WEB_VIEW_CLIENT = "RequestedByWebViewClient"
     POST_MESSAGE_BY_WEB_VIEW_CLIENT = "PostMessageByWebViewClient"
     CACHE_CONTROL_NO_STORE_DEVICE_BOUND_SESSION_TERMINATED = "CacheControlNoStoreDeviceBoundSessionTerminated"
@@ -2125,7 +2121,8 @@ def clear_geolocation_override() -> typing.Generator[T_JSON_DICT,T_JSON_DICT,Non
 def create_isolated_world(
         frame_id: FrameId,
         world_name: typing.Optional[str] = None,
-        grant_univeral_access: typing.Optional[bool] = None
+        grant_univeral_access: typing.Optional[bool] = None,
+        content_security_policy: typing.Optional[str] = None
     ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,runtime.ExecutionContextId]:
     '''
     Creates an isolated world for the given frame.
@@ -2133,6 +2130,7 @@ def create_isolated_world(
     :param frame_id: Id of the frame in which the isolated world should be created.
     :param world_name: *(Optional)* An optional name which is reported in the Execution Context.
     :param grant_univeral_access: *(Optional)* Whether or not universal access should be granted to the isolated world. This is a powerful option, use with caution.
+    :param content_security_policy: *(Optional)* An optional content security policy to set for the isolated world. If omitted, any existing CSP for the world will be cleared. Note that clearing or updating the CSP does not immediately affect the active context in the same document because LocalDOMWindow caches the ContentSecurityPolicy object. The change takes effect on subsequent navigations when a new window context is created.
     :returns: Execution context of the isolated world.
     '''
     params: T_JSON_DICT = dict()
@@ -2141,6 +2139,8 @@ def create_isolated_world(
         params['worldName'] = world_name
     if grant_univeral_access is not None:
         params['grantUniveralAccess'] = grant_univeral_access
+    if content_security_policy is not None:
+        params['contentSecurityPolicy'] = content_security_policy
     cmd_dict: T_JSON_DICT = {
         'method': 'Page.createIsolatedWorld',
         'params': params,
@@ -3086,6 +3086,55 @@ def start_screencast(
         'params': params,
     }
     json = yield cmd_dict
+
+
+def start_screen_recording(
+        audio: typing.Optional[bool] = None,
+        max_width: typing.Optional[int] = None,
+        max_height: typing.Optional[int] = None,
+        frame_rate: typing.Optional[int] = None
+    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,io.StreamHandle]:
+    '''
+    Starts screencast video recording.
+
+    **EXPERIMENTAL**
+
+    :param audio: *(Optional)*
+    :param max_width: *(Optional)* Maximum frame width in pixels.
+    :param max_height: *(Optional)* Maximum frame height in pixels.
+    :param frame_rate: *(Optional)* Maximum frame rate in frames per second.
+    :returns: A handle of the stream that holds resulting screencast data.
+    '''
+    params: T_JSON_DICT = dict()
+    if audio is not None:
+        params['audio'] = audio
+    if max_width is not None:
+        params['maxWidth'] = max_width
+    if max_height is not None:
+        params['maxHeight'] = max_height
+    if frame_rate is not None:
+        params['frameRate'] = frame_rate
+    cmd_dict: T_JSON_DICT = {
+        'method': 'Page.startScreenRecording',
+        'params': params,
+    }
+    json = yield cmd_dict
+    return io.StreamHandle.from_json(json['stream'])
+
+
+def stop_screen_recording() -> typing.Generator[T_JSON_DICT,T_JSON_DICT,io.StreamHandle]:
+    '''
+    Stops screencast video recording.
+
+    **EXPERIMENTAL**
+
+    :returns: A handle of the stream that holds resulting screencast data.
+    '''
+    cmd_dict: T_JSON_DICT = {
+        'method': 'Page.stopScreenRecording',
+    }
+    json = yield cmd_dict
+    return io.StreamHandle.from_json(json['stream'])
 
 
 def stop_loading() -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:

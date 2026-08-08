@@ -433,9 +433,13 @@ to. For more information, see
 
 .. autofunction:: set_web_lifecycle_state
 
+.. autofunction:: start_screen_recording
+
 .. autofunction:: start_screencast
 
 .. autofunction:: stop_loading
+
+.. autofunction:: stop_screen_recording
 
 .. autofunction:: stop_screencast
 

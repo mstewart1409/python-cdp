@@ -32,6 +32,11 @@ arguments to other commands.
       :undoc-members:
       :exclude-members: from_json, to_json
 
+.. autoclass:: RemovedTool
+      :members:
+      :undoc-members:
+      :exclude-members: from_json, to_json
+
 Commands
 --------
 
@@ -44,9 +49,13 @@ commands, and ``z`` is the return type you should pay attention
 to. For more information, see
 :ref:`Getting Started: Commands <getting-started-commands>`.
 
+.. autofunction:: cancel_invocation
+
 .. autofunction:: disable
 
 .. autofunction:: enable
+
+.. autofunction:: invoke_tool
 
 Events
 ------

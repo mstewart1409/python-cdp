@@ -1185,7 +1185,6 @@ def set_pressure_state_override(
         state: PressureState
     ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
     '''
-    TODO: OBSOLETE: To remove when setPressureDataOverride is merged.
     Provides a given pressure state that will be processed and eventually be
     delivered to PressureObserver users. ``source`` must have been previously
     overridden by setPressureSourceOverrideEnabled.
@@ -1200,34 +1199,6 @@ def set_pressure_state_override(
     params['state'] = state.to_json()
     cmd_dict: T_JSON_DICT = {
         'method': 'Emulation.setPressureStateOverride',
-        'params': params,
-    }
-    json = yield cmd_dict
-
-
-def set_pressure_data_override(
-        source: PressureSource,
-        state: PressureState,
-        own_contribution_estimate: typing.Optional[float] = None
-    ) -> typing.Generator[T_JSON_DICT,T_JSON_DICT,None]:
-    '''
-    Provides a given pressure data set that will be processed and eventually be
-    delivered to PressureObserver users. ``source`` must have been previously
-    overridden by setPressureSourceOverrideEnabled.
-
-    **EXPERIMENTAL**
-
-    :param source:
-    :param state:
-    :param own_contribution_estimate: *(Optional)*
-    '''
-    params: T_JSON_DICT = dict()
-    params['source'] = source.to_json()
-    params['state'] = state.to_json()
-    if own_contribution_estimate is not None:
-        params['ownContributionEstimate'] = own_contribution_estimate
-    cmd_dict: T_JSON_DICT = {
-        'method': 'Emulation.setPressureDataOverride',
         'params': params,
     }
     json = yield cmd_dict
